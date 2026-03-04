@@ -18,6 +18,7 @@ A web platform for coordinating volunteers during natural disasters, developed c
 - **Bootstrap 5** — UI styling
 - **jQuery & AJAX** — Dynamic data loading
 - **PhpStorm** — IDE
+- **AI Assisted** — GitHub Copilot / ChatGPT for code suggestions
 
 ## 👥 User Roles
 
