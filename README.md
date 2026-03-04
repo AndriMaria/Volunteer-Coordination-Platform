@@ -4,10 +4,14 @@
 A web platform for coordinating volunteers during natural disasters, developed collaboratively with 2 teammates as part of our Web Programming course in university. The platform supports 3 types of users — Admin, Rescuer and Citizen — each with their own interface and functionality.
 
 ## 🛠️ Technologies
-![PHP](https://img.shields.io/badge/PHP-777BB4?style=flat&logo=php&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
-![HTML](https://img.shields.io/badge/HTML%2FCSS-E34F26?style=flat&logo=html5&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-005C84?style=flat&logo=mysql&logoColor=white)
+- ![PHP](https://img.shields.io/badge/PHP-777BB4?style=flat&logo=php&logoColor=white)
+
+- ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
+
+- ![HTML](https://img.shields.io/badge/HTML%2FCSS-E34F26?style=flat&logo=html5&logoColor=white)
+
+- ![MySQL](https://img.shields.io/badge/MySQL-005C84?style=flat&logo=mysql&logoColor=white)
+
 - **XAMPP** & **phpMyAdmin**
 - **Leaflet.js** — Interactive maps
 - **Chart.js** — Statistics charts
