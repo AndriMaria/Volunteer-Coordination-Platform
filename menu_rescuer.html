@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Menu Διασώστη</title>
+
+	<script src="menu_rescuer.js" defer></script>
+	<link rel="stylesheet" href="style_rescuer.css">
+
+	<script>
+		function logoutAndExit() {
+			window.location.href = 'exit.php';
+
+			window.onpageshow = function(event) {
+				if (event.persisted) {
+					window.location.href = 'index.php?message=session_expired';
+				}
+			};
+
+		}
+
+	</script>
+
+</head>
+<body>
+<table border='1'>
+	<h1>Menu Διασώστη</h1>
+
+	<tr>
+		<td>
+			<a href="view_map_rescuer.php">Δείτε Χάρτη</a>
+		</td>
+		<td><a href="#" onclick="logoutAndExit(); return false;">Αποσύνδεση</a></td>
+
+	</tr>
+</table>
+<br><br>
+<h2>Είδη πάνω στο Όχημα</h2>
+<div id="items-container">
+	<!-- Εδώ θα εμφανίζονται τα στοιχεία του διασώστη -->
+</div>
+
+<!-- Φόρτωση Ειδών -->
+<h2>Φόρτωση Ειδών Οχήματος</h2>
+<select id="category-select">
+	<!-- Κατηγορίες θα προστεθούν εδώ -->
+</select>
+<select id="load-item-select">
+	<!-- Είδη θα προστεθούν εδώ, με βάση την επιλεγμένη κατηγορία -->
+</select>
+<input type="number" id="load-item-quantity" placeholder="Ποσότητα" step="any">
+<button id="load-button">Φόρτωση</button>
+
+<!-- Εκφόρτωση Ειδών -->
+<h2>Εκφόρτωση Ειδών Οχήματος</h2>
+<select id="unload-item-select">
+	<!-- Θα προστεθούν τα είδη από το φορτίο του διασώστη -->
+</select>
+<button id="unload-button">Εκφόρτωση</button>
+
+</body>
+</html>

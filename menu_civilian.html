@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+	<meta charset="UTF-8">
+	<title>Menu Πολίτη</title>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+
+	<link rel="stylesheet" href="style_civilian.css">
+
+	<script>
+		function logoutAndExit() {
+			window.location.href = 'exit.php';
+
+			window.onpageshow = function(event) {
+				if (event.persisted) {
+					window.location.href = 'index.php?message=session_expired';
+				}
+			};
+		}
+
+
+	</script>
+
+	<script>
+		$(document).ready(function() {
+			// Φόρτωσε ανακοινώσεις
+			function fetchAnnouncements() {
+				$.ajax({
+					url: 'fetch_announcement_items.php',
+					method: 'GET',
+					data: { action: 'announcements' },
+					dataType: 'json',
+					success: function(data) {
+						if (data.error) {
+							$('#announcementsTable tbody').html('<tr><td colspan="4">' + data.error + '</td></tr>');
+						} else {
+							var rows = '';
+							$.each(data, function(index, announcement) {
+								rows += '<tr>' +
+										'<td>' + $('<div>').text(announcement.title).html() + '</td>' +
+										'<td>' + $('<div>').text(announcement.description).html() + '</td>' +
+										'<td>' + $('<div>').text(announcement.date_created).html() + '</td>' +
+										'<td><button class="offer-button" data-announcement-id="' + announcement.id + '">Εκδήλωση Προσφοράς</button></td>' +
+										'</tr>';
+							});
+							$('#announcementsTable tbody').html(rows);
+						}
+					},
+					error: function() {
+						$('#announcementsTable tbody').html('<tr><td colspan="4">Σφάλμα κατά την ανάκτηση των ανακοινώσεων</td></tr>');
+					}
+				});
+			}
+
+			// Φόρτωσε είδη για συγκεκριμένη ανακοίνωση
+			function fetchAnnouncementItems(announcementId) {
+				$.ajax({
+					url: 'fetch_announcement_items.php',
+					method: 'GET',
+					data: { action: 'announcement_items', announcement_id: announcementId },
+					dataType: 'json',
+					success: function(data) {
+						if (data.error) {
+							$('#itemId').html('<option value="">' + data.error + '</option>');
+						} else {
+							var options = '<option value="">Επιλέξτε Είδος</option>';
+							$.each(data, function(index, item) {
+								options += '<option value="' + item.id + '">' + $('<div>').text(item.name).html() + '</option>';
+							});
+							$('#itemId').html(options);
+						}
+					},
+					error: function() {
+						$('#itemId').html('<option value="">Σφάλμα κατά την ανάκτηση των ειδών</option>');
+					}
+				});
+			}
+
+			function fetchOffers() {
+				$.ajax({
+					url: 'get_user_offer_and_cancel.php',
+					method: 'GET',
+					dataType: 'json',
+					success: function(data) {
+						if (data.error) {
+							$('#offersTable tbody').html('<tr><td colspan="8">' + data.error + '</td></tr>');
+						} else {
+							var rows = '';
+							$.each(data, function(index, offer) {
+								rows += '<tr>' +
+										'<td>' + $('<div>').text(offer.announcement_id).html() + '</td>' +
+										'<td>' + $('<div>').text(offer.item_name).html() + '</td>' + // Εμφάνιση ονόματος είδους
+										'<td>' + $('<div>').text(offer.quantity).html() + '</td>' +
+										'<td>' + $('<div>').text(offer.status).html() + '</td>' +
+										'<td>' + $('<div>').text(offer.date_created).html() + '</td>' +
+										'<td>' + $('<div>').text(offer.accepted_date).html() + '</td>' +
+										'<td>' + $('<div>').text(offer.completed_date).html() + '</td>' +
+										'<td><button class="cancel-button" data-offer-id="' + offer.id + '">Ακύρωση</button></td>' +
+										'</tr>';
+							});
+							$('#offersTable tbody').html(rows);
+						}
+					},
+					error: function() {
+						$('#offersTable tbody').html('<tr><td colspan="8">Σφάλμα κατά την ανάκτηση των προσφορών</td></tr>');
+					}
+				});
+			}
+
+			// Υποβολή προσφοράς
+			$(document).on('click', '.offer-button', function() {
+				var announcementId = $(this).data('announcement-id');
+				$('#offerModal').show();
+				$('#offerForm').data('announcement-id', announcementId); // Αποθήκευση του announcementId
+				fetchAnnouncementItems(announcementId); // Φόρτωσε είδη για την επιλεγμένη ανακοίνωση
+			});
+
+			$('#offerForm').on('submit', function(e) {
+				e.preventDefault();
+				var announcementId = $(this).data('announcement-id');
+				var itemId = $('#itemId').val();
+				var quantity = $('#quantity').val();
+
+				$.ajax({
+					url: 'submit_offer.php',
+					method: 'POST',
+					data: {
+						announcementId: announcementId,
+						itemId: itemId,
+						quantity: quantity
+					},
+					success: function(response) {
+						alert(response);
+						$('#offerModal').hide();
+						fetchOffers(); // Ενημέρωση της λίστας προσφορών
+					},
+					error: function() {
+						alert('Σφάλμα κατά την υποβολή της προσφοράς.');
+					}
+				});
+			});
+
+			// Ακύρωση προσφοράς
+			$(document).on('click', '.cancel-button', function() {
+				var offerId = $(this).data('offer-id');
+				if (confirm("Είστε σίγουροι ότι θέλετε να διαγράψετε αυτή την προσφορά;")) {
+					$.ajax({
+						url: 'get_user_offer_and_cancel.php',
+						method: 'POST',
+						data: { offerId: offerId },
+						success: function(response) {
+							alert(response);
+							fetchOffers(); // Ενημέρωση της λίστας προσφορών
+						},
+						error: function() {
+							alert('Σφάλμα κατά την διαγραφή της προσφοράς.');
+						}
+					});
+				}
+			});
+
+			// Κλείσιμο του modal
+			$(document).on('click', '.close', function() {
+				$('#offerModal').hide();
+			});
+
+			// Φόρτωσε δεδομένα
+			fetchAnnouncements();
+			fetchOffers(); // Ενημέρωση της λίστας προσφορών κατά την αρχική φόρτωση
+		});
+	</script>
+
+</head>
+<body>
+<h1>Menu Πολίτη</h1>
+<table border="1">
+	<tr>
+		<td><a href="view_map_civilian.php">Δείτε Χάρτη</a></td>
+		<td><a href="#" onclick="logoutAndExit(); return false;">Αποσύνδεση</a></td>
+	</tr>
+</table>
+<br><br>
+
+<h2>Λίστα Ανακοινώσεων</h2>
+<table id="announcementsTable" border="1">
+	<thead>
+	<tr>
+		<th>Τίτλος</th>
+		<th>Περιγραφή</th>
+		<th>Ημερομηνία Δημιουργίας</th>
+		<th>Ενέργεια</th>
+	</tr>
+	</thead>
+	<tbody>
+	<!-- Τα δεδομένα θα φορτωθούν εδώ -->
+	</tbody>
+</table>
+
+<br><br>
+
+<h2>Λίστα Προσφορών</h2>
+<table id="offersTable" border="1">
+	<thead>
+	<tr>
+		<th>Ανακοίνωση ID</th>
+		<th>Είδος ID</th>
+		<th>Ποσότητα</th>
+		<th>Κατάσταση</th>
+		<th>Ημερομηνία Δημιουργίας</th>
+		<th>Ημερομηνία Αποδοχής</th>
+		<th>Ημερομηνία Ολοκλήρωσης</th>
+		<th>Ενέργεια</th>
+	</tr>
+	</thead>
+	<tbody>
+	<!-- Τα δεδομένα θα φορτωθούν εδώ -->
+	</tbody>
+</table>
+
+<!-- Modal για την υποβολή προσφοράς -->
+<div id="offerModal" class="modal">
+	<div class="modal-content">
+		<span class="close">&times;</span>
+		<h2>Υποβολή Προσφοράς</h2>
+		<form id="offerForm">
+			<label for="itemId">Είδος:</label>
+			<select id="itemId" name="itemId">
+				<!-- Τα είδη θα φορτωθούν εδώ -->
+			</select>
+			<br><br>
+			<label for="quantity">Ποσότητα:</label>
+			<input type="number" id="quantity" name="quantity" required>
+			<br><br>
+			<input type="submit" value="Υποβολή Προσφοράς">
+		</form>
+	</div>
+
+</div>
+<div class="request-form">
+	<h2>Δημιουργία Νέου Αιτήματος</h2>
+	<label for="category_select">Κατηγορία:</label>
+	<select id="category_select" onchange="populateItems()">
+		<option value="">Επιλέξτε Κατηγορία</option>
+	</select>
+	<br>
+	<label for="item_name">Είδος:</label>
+	<select id="item_name">
+		<option value="">Επιλέξτε Είδος</option>
+	</select>
+	<br>
+	Πλήθος ατόμων: <input type="number" id="people_count" required>
+	<br>
+	<button id="submit_request" onclick="createRequest()">Υποβολή</button>
+	<script src=create_request.js></script>
+</div>
+
+<div class="request-list">
+	<h2>Τα Αιτήματά Μου</h2>
+	<ul id="request_list"></ul>
+	<script src="fetch_requests.js"></script>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+</body>
+</html>

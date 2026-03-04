@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+	<meta charset="UTF-8">
+	<title>Menu Διαχειριστή</title>
+
+
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="warehouse.js"></script>
+	<script src="load_items.js" defer></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<link rel="stylesheet" href="style_admin.css">
+
+	<script>
+		function logoutAndExit() {
+			window.location.href = 'exit.php';
+
+			window.onpageshow = function(event) {
+				if (event.persisted) {
+					window.location.href = 'index.php?message=session_expired';
+				}
+			};
+		}
+
+
+
+
+
+
+
+
+	</script>
+</head>
+<body>
+<table border='1'>
+	<h1>Menu Διαχειριστή</h1>
+	<tr>
+		<td><a href="view_map_admin.php">Δείτε Χάρτη</a></td>
+		<td><a href="#" onclick="logoutAndExit(); return false;">Αποσύνδεση</a></td>
+	</tr>
+</table>
+
+<br><br>
+
+<h1>Διαχείριση Αποθήκης</h1>
+
+<h2>Κατηγορίες</h2>
+<form id="categoryForm">
+	<input type="text" id="categoryName" name="categoryName" placeholder="Όνομα Κατηγορίας" required>
+	<select id="categorySelect" name="categorySelect">
+		<option value="">--Επιλέξτε--</option>
+	</select>
+	<button type="submit">Αποθήκευση Κατηγορίας</button>
+</form>
+
+<h2>Είδη</h2>
+<form id="itemForm">
+	<input type="text" id="itemName" name="itemName" placeholder="Όνομα Είδους" required>
+	<select id="itemCategory" name="itemCategory">
+		<option value="">--Επιλέξτε Κατηγορία--</option>
+	</select>
+	<input type="text" id="itemQuantity" name="itemQuantity" placeholder="Ποσότητα" required>
+	<select id="itemSelect" name="itemSelect">
+		<option value="">--Επιλέξτε Είδος--</option>
+	</select>
+	<button type="submit">Αποθήκευση Είδους</button>
+</form>
+
+<h2>Διαχείριση Ειδών</h2>
+<form id="itemManagementForm">
+	<label for="categorySelect">Επιλέξτε Κατηγορία:</label>
+	<select id="categorySelectForItems" name="categorySelectForItems">
+		<option value="">--Επιλέξτε Κατηγορία--</option>
+	</select>
+	<br>
+	<label for="itemSelect">Επιλέξτε Είδος:</label>
+	<select id="itemSelectForRemoval" name="itemSelectForRemoval">
+		<option value="">--Επιλέξτε Είδος--</option>
+	</select>
+	<br>
+	<button type="button" id="removeItemButton">Αφαίρεση Είδους</button>
+</form>
+
+<h2>Φόρτωση Δεδομένων από JSON</h2>
+<form id="jsonUploadForm" enctype="multipart/form-data">
+	<input type="file" name="jsonFile" accept=".json" required>
+	<button type="submit">Φόρτωσε JSON</button>
+</form>
+
+<div id="message"></div>
+
+<h2>Δημιουργία Λογαριασμού Διασώστη</h2>
+<form id="rescueAccountForm" method="post" action="create_rescue_account.php">
+	<label for="username">Όνομα Χρήστη:</label>
+	<input type="text" id="username" name="username" required>
+	<br>
+	<label for="password">Κωδικός:</label>
+	<input type="password" id="password" name="password" required>
+	<span class="password-toggle" onclick="togglePassword()">👁️</span>
+
+	<br>
+	<button type="submit">Δημιουργία Λογαριασμού</button>
+</form>
+
+<script>
+	function togglePassword() {
+		const passwordField = document.getElementById('password');
+		const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+		passwordField.setAttribute('type', type);
+	}
+</script>
+
+<h2>Δημιουργία Νέας Ανακοίνωσης</h2>
+<form id="announcementForm" method="post" action="create_announcement.php">
+	<label for="title">Τίτλος:</label>
+	<input type="text" id="title" name="title" required>
+	<br>
+	<label for="description">Περιγραφή:</label>
+	<textarea id="description" name="description" required></textarea>
+	<br>
+	<label for="items">Είδη:</label>
+	<button type="button" id="openItemsModal">Επιλέξτε Είδη</button>
+	<div class="selected-items">
+		<h3>Επιλεγμένα Είδη:</h3>
+		<ul id="selectedItemsList"></ul>
+	</div>
+	<input type="hidden" id="items" name="items"> <!-- Κρυφός τομέας -->
+	<br>
+	<button type="submit">Δημιουργία Ανακοίνωσης</button>
+</form>
+
+<!-- Το Modal -->
+<div id="itemsModal" class="modal">
+	<div class="modal-content">
+		<span class="close">&times;</span>
+		<h2>Επιλέξτε Είδη</h2>
+		<select id="itemsSelect" multiple style="width: 100%; height: 200px;">
+			<!-- Τα είδη θα φορτωθούν εδώ από το αρχείο load_items.js -->
+		</select>
+		<button id="addItemsToList">Προσθήκη</button>
+	</div>
+</div>
+<script src="anadyomeno_para8yro.js"></script>
+
+<h1>Κατάσταση Αποθήκης</h1>
+<div>
+	<label for="categoryFilter">Φίλτρο Κατηγοριών:</label>
+	<select id="categoryFilter" multiple>
+		<!-- Κατηγορίες θα φορτωθούν δυναμικά εδώ -->
+	</select>
+</div>
+<table id="inventoryTable" border="1">
+	<thead>
+	<tr>
+		<th>Όνομα</th>
+		<th>Κατηγορία</th>
+		<th>Ποσότητα</th>
+	</tr>
+	</thead>
+	<tbody>
+	<!-- Δεδομένα θα φορτωθούν δυναμικά εδώ -->
+	</tbody>
+</table>
+<script src="inventory.js"></script>
+
+<h1>Γράφημα Προσφορών</h1>
+<form id="dateRangeForm">
+	<label for="startDate">Από:</label>
+	<input type="date" id="startDate" name="startDate">
+	<label for="endDate">Έως:</label>
+	<input type="date" id="endDate" name="endDate">
+	<button type="submit">Εφαρμογή</button>
+</form>
+
+<div class="canvas-container">
+	<canvas id="offersChart"></canvas>
+</div>
+
+<script src="offers_request_chart.js"></script>
+
+<h1>Γράφημα Αιτημάτων</h1>
+<form id="dateRange">
+	<label for="startDate">Από:</label>
+	<input type="date" id="startDateRequest" name="startDate">
+	<label for="endDate">Έως:</label>
+	<input type="date" id="endDateRequest" name="endDate">
+	<button type="submit">Εφαρμογή</button>
+</form>
+
+<div class="canvas-container">
+	<canvas id="requestChart"></canvas>
+</div>
+
+<script src="request_get_chart.js"></script>
+</body>
+</html>
